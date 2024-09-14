@@ -114,9 +114,7 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
             switch output {
             case let .output(data):
                 if let string = String(data: data, encoding: .utf8) {
-                    fputs(string, Darwin.stdout)
                     results.append(string)
-                    fflush(Darwin.stdout)
                 }
             case let .error(data):
                 if let string = String(data: data, encoding: .utf8) {
