@@ -13,6 +13,39 @@ final class ScriptTests: XCTestCase {
         XCTAssertEqual("Hello\nWorld", output.trimmingCharacters(in: .whitespacesAndNewlines))
     }
     
+    func testEchoScriptBash() async throws {
+        let script = Script(shell: .bash) {
+            """
+            echo 'Hello';
+            echo 'World';
+            """
+        }
+        let output = try await script.capture()
+        XCTAssertEqual("Hello\nWorld", output.trimmingCharacters(in: .whitespacesAndNewlines))
+    }
+    
+    func testEchoScriptZs() async throws {
+        let script = Script(shell: .zsh) {
+            """
+            echo 'Hello';
+            echo 'World';
+            """
+        }
+        let output = try await script.capture()
+        XCTAssertEqual("Hello\nWorld", output.trimmingCharacters(in: .whitespacesAndNewlines))
+    }
+    
+    func testEchoScriptSh() async throws {
+        let script = Script(shell: .sh) {
+            """
+            echo 'Hello';
+            echo 'World';
+            """
+        }
+        let output = try await script.capture()
+        XCTAssertEqual("Hello\nWorld", output.trimmingCharacters(in: .whitespacesAndNewlines))
+    }
+    
     func testEchoScriptExpressibleByStringLiteral() async throws {
         let script: Script =
         """

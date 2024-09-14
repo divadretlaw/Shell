@@ -12,12 +12,12 @@ public final class Script: CommandRunnable, ExpressibleByStringLiteral {
     
     // MARK: - init
     
-    public convenience init(script: () -> String) {
-        self.init(script())
+    public convenience init(shell: Shell = .zsh, script: () -> String) {
+        self.init(script(), shell: shell)
     }
     
-    public init(_ script: String) {
-        self.command = Command(arguments: ["zsh", "-c", script], currentDirectoryURL: nil)
+    public init(_ script: String, shell: Shell = .zsh) {
+        self.command = Command(arguments: [shell.rawValue, "-c", script], currentDirectoryURL: nil)
     }
     
     // MARK: - ExpressibleByStringLiteral
