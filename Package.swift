@@ -15,7 +15,10 @@ let package = Package(
         )
     ],
     targets: [
-        .target(name: "Shell", dependencies: ["SwiftSystem"]),
+        .target(
+            name: "Shell",
+            dependencies: ["SwiftSystem"]
+        ),
         .target(name: "SwiftSystem"),
         .testTarget(
             name: "ShellTests",
