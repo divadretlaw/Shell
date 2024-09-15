@@ -8,7 +8,7 @@
 import Foundation
 
 /// The known shells
-public enum Shell: String, Identifiable, Equatable, Hashable, Sendable {
+public enum Shell: String, CaseIterable, Identifiable, Equatable, Hashable, Sendable, CustomStringConvertible {
     case sh = "sh"
     case bash = "bash"
     case csh = "csh"
@@ -21,5 +21,26 @@ public enum Shell: String, Identifiable, Equatable, Hashable, Sendable {
     
     public var id: String {
         rawValue
+    }
+    
+    // MARK: - CustomStringConvertible
+    
+    public var description: String {
+        switch self {
+        case .sh:
+            "Bourne shell"
+        case .bash:
+            "Bash"
+        case .csh:
+            "C Shell"
+        case .dash:
+            "Debian Almquist shell"
+        case .fish:
+            "Fish"
+        case .tcsh:
+            "TENEX C Shell"
+        case .zsh:
+            "Z shell"
+        }
     }
 }

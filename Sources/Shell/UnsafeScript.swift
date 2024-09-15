@@ -42,7 +42,7 @@ public final class UnsafeScript: ExpressibleByStringLiteral {
     
     private var command: String {
         if let shell {
-            "\(shell) -c \"\(script)\""
+            "\(shell.rawValue) -c \"\(script)\""
         } else {
             script
         }

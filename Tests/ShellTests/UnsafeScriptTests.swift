@@ -12,33 +12,20 @@ final class UnsafeScriptTests: XCTestCase {
         try await script()
     }
     
-    func testEchoBash() async throws {
-        let script = UnsafeScript(shell: .bash) {
-            """
-            echo 'Hello';
-            echo 'World';
-            """
+    func testScriptShells() async throws {
+        for shell in Shell.allCases {
+            guard await Command.isAvailable(shell.rawValue) else {
+                print("Checking: \(shell) - not available. Skip.")
+                continue
+            }
+            print("Checking: \(shell)")
+            let script = UnsafeScript(shell: shell) {
+                """
+                echo 'Hello';
+                echo 'World';
+                """
+            }
+            try await script()
         }
-        try await script()
-    }
-    
-    func testEchoZsh() async throws {
-        let script = UnsafeScript(shell: .zsh) {
-            """
-            echo 'Hello';
-            echo 'World';
-            """
-        }
-        try await script()
-    }
-    
-    func testEchoSh() async throws {
-        let script = UnsafeScript(shell: .sh) {
-            """
-            echo 'Hello';
-            echo 'World';
-            """
-        }
-        try await script()
     }
 }

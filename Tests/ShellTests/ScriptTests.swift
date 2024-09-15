@@ -13,37 +13,22 @@ final class ScriptTests: XCTestCase {
         XCTAssertEqual("Hello\nWorld", output.trimmingCharacters(in: .whitespacesAndNewlines))
     }
     
-    func testEchoScriptBash() async throws {
-        let script = Script(shell: .bash) {
-            """
-            echo 'Hello';
-            echo 'World';
-            """
+    func testScriptShells() async throws {
+        for shell in Shell.allCases {
+            guard await Command.isAvailable(shell.rawValue) else {
+                print("Checking: \(shell) - not available. Skip.")
+                continue
+            }
+            print("Checking: \(shell)")
+            let script = Script(shell: shell) {
+                """
+                echo 'Hello';
+                echo 'World';
+                """
+            }
+            let output = try await script.capture()
+            XCTAssertEqual("Hello\nWorld", output.trimmingCharacters(in: .whitespacesAndNewlines))
         }
-        let output = try await script.capture()
-        XCTAssertEqual("Hello\nWorld", output.trimmingCharacters(in: .whitespacesAndNewlines))
-    }
-    
-    func testEchoScriptZs() async throws {
-        let script = Script(shell: .zsh) {
-            """
-            echo 'Hello';
-            echo 'World';
-            """
-        }
-        let output = try await script.capture()
-        XCTAssertEqual("Hello\nWorld", output.trimmingCharacters(in: .whitespacesAndNewlines))
-    }
-    
-    func testEchoScriptSh() async throws {
-        let script = Script(shell: .sh) {
-            """
-            echo 'Hello';
-            echo 'World';
-            """
-        }
-        let output = try await script.capture()
-        XCTAssertEqual("Hello\nWorld", output.trimmingCharacters(in: .whitespacesAndNewlines))
     }
     
     func testEchoScriptExpressibleByStringLiteral() async throws {
