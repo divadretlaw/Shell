@@ -32,14 +32,14 @@ final class CommandTests: XCTestCase {
     
     func testMultiPipe() async throws {
         let echo = Command("echo", "Hello World")
-        let task = echo | Command("cat") | Command("cat") | Command("cat")
+        let task = echo | Command("rev") | Command("cat") | Command("rev")
         let output = try await task.capture()
         XCTAssertEqual("Hello World", output.trimmingCharacters(in: .whitespacesAndNewlines))
     }
     
     func testMultiRedirection() async throws {
         let echo = Command("echo", "Hello World")
-        let task = Command("cat").redirected(from: Command("cat").redirected(from: Command("cat").redirected(from: echo)))
+        let task = Command("rev").redirected(from: Command("cat").redirected(from: Command("rev").redirected(from: echo)))
         let output = try await task.capture()
         XCTAssertEqual("Hello World", output.trimmingCharacters(in: .whitespacesAndNewlines))
     }

@@ -28,4 +28,13 @@ final class UnsafeScriptTests: XCTestCase {
             try await script()
         }
     }
+    
+    func testScriptExpressibleByStringLiteral() async throws {
+        let script: UnsafeScript =
+        """
+        echo 'Hello';
+        echo 'World';
+        """
+        try await script()
+    }
 }

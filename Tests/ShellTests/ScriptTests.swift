@@ -31,7 +31,7 @@ final class ScriptTests: XCTestCase {
         }
     }
     
-    func testEchoScriptExpressibleByStringLiteral() async throws {
+    func testScriptExpressibleByStringLiteral() async throws {
         let script: Script =
         """
         echo 'Hello';
@@ -80,5 +80,20 @@ final class ScriptTests: XCTestCase {
         }
         
         try await script()
+    }
+    
+    func testWrite() async throws {
+        try await XCTTemporaryDirectory { directory in
+            let file = directory.appending(path: "test.txt")
+            let script = Script {
+                """
+                echo 'Hello' > \(file.path());
+                """
+            }
+            
+            try await script()
+            let string = try String(contentsOf: file)
+            XCTAssertEqual("Hello", string.trimmingCharacters(in: .whitespacesAndNewlines))
+        }
     }
 }
