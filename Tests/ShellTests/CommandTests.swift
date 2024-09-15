@@ -51,4 +51,11 @@ final class CommandTests: XCTestCase {
         let output = try await task.capture()
         XCTAssertEqual("Hello World", output.trimmingCharacters(in: .whitespacesAndNewlines))
     }
+    
+    func testIsAvailable() async throws {
+        let echo = await Command.isAvailable("echo")
+        XCTAssertTrue(echo)
+        let someUnavailableCommand = await Command.isAvailable("someUnavailableCommand")
+        XCTAssertFalse(someUnavailableCommand)
+    }
 }
