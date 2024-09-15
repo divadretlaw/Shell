@@ -8,15 +8,23 @@
 import Foundation
 
 public protocol Runnable: Sendable {
+    /// The caller of this runnable
     var caller: Runnable? { get }
+    /// The `stdout` pipe
     var stdout: Pipe { get }
     
-    func redirected(from: Runnable) -> Runnable
+    /// Pipe the output of the ``Runnable`` to the given ``Runnable``
+    /// - Parameter caller: The ``Runnable`` that should provides its output as input.
+    /// - Returns: The updated ``Runnable``
+    func redirected(from caller: Runnable) -> Runnable
+    /// Pipe the output of the ``Runnable`` to the given ``Runnable``
+    /// - Parameter other: The ``Runnable`` that should receive the output as input.
+    /// - Returns: The updated ``Runnable``
     func pipe(_ other: Runnable) -> Runnable
     
-    /// Runs the process and all of its callers
+    /// Starts the process and all of its callers
     func run() throws
-    /// Runs the process and all of its callers and captures its output
+    /// Runs the process and all of its callers
     func callAsFunction() async throws
     /// Runs the process and all of its callers and streams its output
     func stream() -> AsyncThrowingStream<ShellOutput, Error>

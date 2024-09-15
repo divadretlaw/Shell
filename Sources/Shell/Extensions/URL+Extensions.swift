@@ -8,7 +8,7 @@
 import Foundation
 
 extension URL {
-    public init?(systemPath item: String?, environment: [String: String] = ProcessInfo.processInfo.environment) {
+    init?(systemPath item: String?, environment: [String: String] = ProcessInfo.processInfo.environment) {
         if let path = environment["PATH"], let url = URL._systemPath(item: item, path: path) {
             self = url
         } else {

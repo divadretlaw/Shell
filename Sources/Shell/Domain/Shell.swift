@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// The known shells
 public enum Shell: String, Identifiable, Equatable, Hashable, Sendable {
     case sh = "sh"
     case bash = "bash"

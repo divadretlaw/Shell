@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// A command to run
 public final class Command: Runnable, ExpressibleByArrayLiteral {
     private let process: Process
     private let standardOutput: Pipe
@@ -16,6 +17,11 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
     
     // MARK: - init
     
+    /// Create a command to execute
+    /// - Parameters:
+    ///   - arguments: The command arguments. The first argument is the executable.
+    ///   - currentDirectoryURL: The directory url the command should be executed in.
+    ///   - environment: The environment the command should inherit.
     public convenience init(
         _ arguments: String...,
         currentDirectoryURL: URL? = URL(filePath: FileManager.default.currentDirectoryPath),
@@ -28,6 +34,11 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
         )
     }
     
+    /// Create a command to execute
+    /// - Parameters:
+    ///   - arguments: The command arguments. The first argument is the executable.
+    ///   - currentDirectoryURL: The directory url the command should be executed in.
+    ///   - environment: The environment the command should inherit.
     public convenience init(
         arguments: [String],
         currentDirectoryURL: URL? = URL(filePath: FileManager.default.currentDirectoryPath),
@@ -40,9 +51,15 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
         }
     }
     
+    /// Create a command to execute
+    /// - Parameters:
+    ///   - url: The url to the executable.
+    ///   - arguments: The command arguments.
+    ///   - currentDirectoryURL: The directory url the command should be executed in.
+    ///   - environment: The environment the command should inherit.
     public init(
         url: URL,
-        arguments: [String],
+        arguments: [String]? = nil,
         currentDirectoryURL: URL? = URL(filePath: FileManager.default.currentDirectoryPath),
         environment: [String: String] = ProcessInfo.processInfo.environment
     ) {

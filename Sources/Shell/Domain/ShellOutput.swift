@@ -7,9 +7,10 @@
 
 import Foundation
 
+/// Shell output types
 public enum ShellOutput: Hashable, Equatable, Sendable {
-    /// The process wrote to `stdout`
+    /// The ``Runnable`` wrote to `stdout`
     case output(Data)
-    /// The process wrote to `stderr`
+    /// The ``Runnable`` wrote to `stderr`
     case error(Data)
 }
