@@ -8,6 +8,6 @@
 import Foundation
 
 public enum ShellError: Error {
-    case terminated(Int32, stderr: String?)
-    case signalled(Int32)
+    case terminated(_ status: Int32, stderr: String?)
+    case signalled(_ status: Int32)
 }

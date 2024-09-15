@@ -63,7 +63,7 @@ final class ScriptTests: XCTestCase {
             echo 'World';
             """
         }
-        let task = script | Command("cat")
+        let task = script | Command("rev") | Command("rev")
         let output = try await task.capture()
         XCTAssertEqual("Hello\nWorld", output.trimmingCharacters(in: .whitespacesAndNewlines))
     }
@@ -79,5 +79,21 @@ final class ScriptTests: XCTestCase {
         let task = cat.redirected(from: script)
         let output = try await task.capture()
         XCTAssertEqual("Hello\nWorld", output.trimmingCharacters(in: .whitespacesAndNewlines))
+    }
+    
+    func testProgressScript() async throws {
+        let script = Script {
+            """
+            echo 'Hello';
+            sleep 1;
+            echo 'World';
+            sleep 1;
+            echo 'Another Hello';
+            sleep 1;
+            echo 'Another World';
+            """
+        }
+        
+        try await script()
     }
 }

@@ -11,6 +11,7 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
     private let process: Process
     private let standardOutput: Pipe
     private let standardError: Pipe
+    private let queue: DispatchQueue
     private let _caller: Lock<Runnable?>
     
     // MARK: - init
@@ -56,9 +57,11 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
         process.standardOutput = stdout
         process.standardError = stderr
         
+        let name = url.lastPathComponent
         self.process = process
         self.standardOutput = stdout
         self.standardError = stderr
+        self.queue = DispatchQueue(label: "at.davidwalter.shell.\(name)")
         self._caller = nil
     }
     
@@ -128,63 +131,70 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
     
     public func stream() -> AsyncThrowingStream<ShellOutput, Error> {
         AsyncThrowingStream(ShellOutput.self, bufferingPolicy: .unbounded) { continuation in
-            continuation.onTermination = { [process] termination in
-                switch termination {
-                case .cancelled:
-                    if process.isRunning {
-                        process.terminate()
+            queue.async { [weak self] in
+                guard let self else {
+                    return continuation.finish()
+                }
+                
+                continuation.onTermination = { [process] termination in
+                    switch termination {
+                    case .cancelled:
+                        if process.isRunning {
+                            process.terminate()
+                        }
+                    default:
+                        break
                     }
-                default:
-                    break
-                }
-            }
-            
-            let error: Lock<[String]> = []
-            
-            standardOutput.fileHandleForReading.readabilityHandler = { handle in
-                let data = handle.availableData
-                if !data.isEmpty {
-                    continuation.yield(.output(data))
-                }
-            }
-            
-            standardError.fileHandleForReading.readabilityHandler = { handle in
-                let data = handle.availableData
-                if !data.isEmpty, let output = String(data: data, encoding: .utf8) {
-                    error.wrappedValue.append(output)
-                }
-            }
-            
-            do {
-                try run()
-                process.waitUntilExit()
-                
-                if let data = try standardOutput.fileHandleForReading.readToEnd(), !data.isEmpty {
-                    continuation.yield(.output(data))
                 }
                 
-                if let data = try standardError.fileHandleForReading.readToEnd(), !data.isEmpty {
-                    continuation.yield(.error(data))
-                    if let output = String(data: data, encoding: .utf8) {
+                let error: Lock<[String]> = []
+                
+                standardOutput.fileHandleForReading.readabilityHandler = { handle in
+                    let data = handle.availableData
+                    if !data.isEmpty {
+                        continuation.yield(.output(data))
+                    }
+                }
+                
+                standardError.fileHandleForReading.readabilityHandler = { handle in
+                    let data = handle.availableData
+                    if !data.isEmpty, let output = String(data: data, encoding: .utf8) {
                         error.wrappedValue.append(output)
                     }
                 }
                 
-                switch process.terminationReason {
-                case .exit:
-                    if process.terminationStatus != 0 {
-                        throw ShellError.terminated(process.terminationStatus, stderr: error.wrappedValue.joined())
+                do {
+                    try run()
+                    process.waitUntilExit()
+                    
+                    if let data = try standardOutput.fileHandleForReading.readToEnd(), !data.isEmpty {
+                        continuation.yield(.output(data))
                     }
-                case .uncaughtSignal:
-                    if process.terminationStatus != 0 {
-                        throw ShellError.signalled(process.terminationStatus)
+                    
+                    if let data = try standardError.fileHandleForReading.readToEnd(), !data.isEmpty {
+                        continuation.yield(.error(data))
+                        if let output = String(data: data, encoding: .utf8) {
+                            error.wrappedValue.append(output)
+                        }
                     }
-                @unknown default:
-                    break
+                    
+                    let terminationStatus = process.terminationStatus
+                    switch process.terminationReason {
+                    case .exit:
+                        if terminationStatus != 0 {
+                            throw ShellError.terminated(terminationStatus, stderr: error.wrappedValue.joined())
+                        }
+                    case .uncaughtSignal:
+                        if terminationStatus != 0 {
+                            throw ShellError.signalled(terminationStatus)
+                        }
+                    @unknown default:
+                        break
+                    }
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
                 }
-                continuation.finish()
-            } catch {
-                continuation.finish(throwing: error)
             }
         }
     }
