@@ -15,9 +15,9 @@ public final class Script: CommandRunnable, ExpressibleByStringLiteral {
     
     /// Create a script to execute
     /// - Parameters:
-    ///   - shell: The ``Shell/Shell`` to use. Defaults to ``Shell/Shell/zsh``.
+    ///   - shell: The ``Shell/Shell`` to use. Defaults to ``Shell/Shell/sh``.
     ///   - script: Callback to create a script to execute.
-    public convenience init(shell: Shell = .zsh, script: () -> String) {
+    public convenience init(shell: Shell = .sh, script: () -> String) {
         self.init(script(), shell: shell)
     }
     

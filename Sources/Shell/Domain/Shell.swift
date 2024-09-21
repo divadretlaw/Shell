@@ -17,6 +17,12 @@ public enum Shell: String, CaseIterable, Identifiable, Equatable, Hashable, Send
     case tcsh = "tcsh"
     case zsh = "zsh"
     
+    public var isAvailable: Bool {
+        get async {
+            await Command.isAvailable(rawValue)
+        }
+    }
+    
     // MARK: - Identifiable
     
     public var id: String {

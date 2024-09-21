@@ -27,7 +27,7 @@ public protocol Runnable: Sendable {
     /// Runs the process and all of its callers
     func callAsFunction() async throws
     /// Runs the process and all of its callers and streams its output
-    func stream() -> AsyncThrowingStream<ShellOutput, Error>
+    func stream() -> AsyncThrowingStream<RunnableOutput, Error>
     /// Runs the process and all of its callers and captures its output
     func capture() async throws -> String
 }

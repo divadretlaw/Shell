@@ -68,7 +68,7 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
         let stderr = Pipe()
         
         process.executableURL = url
-        process.arguments = arguments
+        process.arguments = arguments ?? []
         process.currentDirectoryURL = currentDirectoryURL
         process.environment = environment
         process.standardOutput = stdout
@@ -111,6 +111,24 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
         try process.run()
     }
     
+    public func callAsFunction(
+        stdout: (String) -> Void,
+        stderr: (String) -> Void
+    ) async throws {
+        for try await output in stream() {
+            switch output {
+            case let .output(data):
+                if let string = String(data: data, encoding: .utf8) {
+                    stdout(string)
+                }
+            case let .error(data):
+                if let string = String(data: data, encoding: .utf8) {
+                    stderr(string)
+                }
+            }
+        }
+    }
+    
     public func callAsFunction() async throws {
         for try await output in stream() {
             switch output {
@@ -146,8 +164,8 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
         return results.joined()
     }
     
-    public func stream() -> AsyncThrowingStream<ShellOutput, Error> {
-        AsyncThrowingStream(ShellOutput.self, bufferingPolicy: .unbounded) { continuation in
+    public func stream() -> AsyncThrowingStream<RunnableOutput, Error> {
+        AsyncThrowingStream(RunnableOutput.self, bufferingPolicy: .unbounded) { continuation in
             queue.async { [weak self] in
                 guard let self else {
                     return continuation.finish()
@@ -199,11 +217,11 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
                     switch process.terminationReason {
                     case .exit:
                         if terminationStatus != 0 {
-                            throw ShellError.terminated(terminationStatus, stderr: error.wrappedValue.joined())
+                            throw RunnableError.terminated(terminationStatus, stderr: error.wrappedValue.joined())
                         }
                     case .uncaughtSignal:
                         if terminationStatus != 0 {
-                            throw ShellError.signalled(terminationStatus)
+                            throw RunnableError.signalled(terminationStatus)
                         }
                     @unknown default:
                         break

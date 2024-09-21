@@ -8,7 +8,7 @@
 import Foundation
 
 @propertyWrapper
-final class Lock<T>: @unchecked Sendable {
+final class Lock<T>: @unchecked Sendable where T: Sendable {
     private var _value: T
     private let lock: NSLocking
     

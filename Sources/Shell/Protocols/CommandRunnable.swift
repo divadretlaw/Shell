@@ -36,7 +36,7 @@ extension CommandRunnable {
         try await command.capture()
     }
     
-    public func stream() -> AsyncThrowingStream<ShellOutput, Error> {
+    public func stream() -> AsyncThrowingStream<RunnableOutput, Error> {
         command.stream()
     }
 }

@@ -1,5 +1,5 @@
 //
-//  ShellOutput.swift
+//  RunnableOutput.swift
 //  Shell
 //
 //  Created by David Walter on 10.09.24.
@@ -8,7 +8,7 @@
 import Foundation
 
 /// Shell output types
-public enum ShellOutput: Hashable, Equatable, Sendable {
+public enum RunnableOutput: Hashable, Equatable, Sendable {
     /// The ``Runnable`` wrote to `stdout`
     case output(Data)
     /// The ``Runnable`` wrote to `stderr`

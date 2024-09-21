@@ -59,7 +59,7 @@ public final class UnsafeScript: ExpressibleByStringLiteral {
     public func callAsFunction() async throws {
         let terminationStatus = swiftSystem(command)
         if terminationStatus != 0 {
-            throw ShellError.terminated(terminationStatus, stderr: nil)
+            throw RunnableError.terminated(terminationStatus, stderr: nil)
         }
     }
 }
