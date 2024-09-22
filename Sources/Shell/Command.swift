@@ -111,24 +111,6 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
         try process.run()
     }
     
-    public func callAsFunction(
-        stdout: (String) -> Void,
-        stderr: (String) -> Void
-    ) async throws {
-        for try await output in stream() {
-            switch output {
-            case let .output(data):
-                if let string = String(data: data, encoding: .utf8) {
-                    stdout(string)
-                }
-            case let .error(data):
-                if let string = String(data: data, encoding: .utf8) {
-                    stderr(string)
-                }
-            }
-        }
-    }
-    
     public func callAsFunction() async throws {
         for try await output in stream() {
             switch output {
@@ -197,6 +179,18 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
                         error.wrappedValue.append(output)
                     }
                 }
+                
+                // if process.standardInput == nil {
+                //     let stdin = Pipe()
+                //     process.standardInput = stdin
+                //     let fileHandle = FileHandle(fileDescriptor: STDIN_FILENO)
+                //     fileHandle.readabilityHandler = { handle in
+                //         let data = handle.availableData
+                //         if !data.isEmpty {
+                //             stdin.fileHandleForWriting.write(data)
+                //         }
+                //     }
+                // }
                 
                 do {
                     try run()

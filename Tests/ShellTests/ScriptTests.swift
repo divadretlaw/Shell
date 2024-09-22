@@ -19,18 +19,13 @@ final class ScriptTests: XCTestCase {
             exit 1
             """
         }
-        do {
-            try await script()
-            XCTFail("Expected failure")
-        } catch let error as RunnableError {
+        await XCTAssertThrowsError(try await script()) { error in
             switch error {
-            case let .terminated(code, _):
+            case let RunnableError.terminated(code, _):
                 XCTAssertEqual(code, 1)
             default:
                 XCTFail(error.localizedDescription)
             }
-        } catch {
-            XCTFail(error.localizedDescription)
         }
     }
     
@@ -69,9 +64,10 @@ final class ScriptTests: XCTestCase {
             echo 'World';
             """
         }
-        let task = script | Command("rev") | Command("rev")
+        let rev = Command("rev")
+        let task = script | rev
         let output = try await task.capture()
-        XCTAssertEqual("Hello\nWorld", output, trimming: .whitespacesAndNewlines)
+        XCTAssertEqual("olleH\ndlroW", output, trimming: .whitespacesAndNewlines)
     }
     
     func testRedirect() async throws {
@@ -81,10 +77,10 @@ final class ScriptTests: XCTestCase {
             echo 'World';
             """
         }
-        let cat = Command("cat")
-        let task = cat.redirected(from: script)
+        let rev = Command("rev")
+        let task = rev.redirected(from: script)
         let output = try await task.capture()
-        XCTAssertEqual("Hello\nWorld", output, trimming: .whitespacesAndNewlines)
+        XCTAssertEqual("olleH\ndlroW", output, trimming: .whitespacesAndNewlines)
     }
     
     func testMultiPipe() async throws {
@@ -111,6 +107,18 @@ final class ScriptTests: XCTestCase {
         XCTAssertEqual("Hello\nWorld", output, trimming: .whitespacesAndNewlines)
     }
     
+    func testPiped() async throws {
+        let script = Script {
+            """
+            echo "Hello";
+            echo 'World';
+            """
+        }
+        let rev = Command("rev")
+        guard let task = try [script, rev].piped() else { return }
+        let output = try await task.capture()
+        XCTAssertEqual("olleH\ndlroW", output, trimming: .whitespacesAndNewlines)
+    }
     
     func testScriptProgress() async throws {
         let script = Script {

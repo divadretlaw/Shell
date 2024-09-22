@@ -1,7 +1,7 @@
 import Foundation
 import XCTest
 
-public func XCTAssertEqual(
+func XCTAssertEqual(
     _ expression1: @autoclosure () throws -> String,
     _ expression2: @autoclosure () throws -> String,
     trimming characters: CharacterSet,

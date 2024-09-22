@@ -10,18 +10,13 @@ final class CommandTests: XCTestCase {
     
     func testFailingCommand() async throws {
         let command = Command("false")
-        do {
-            try await command()
-            XCTFail("Expected failure")
-        } catch let error as RunnableError {
+        await XCTAssertThrowsError(try await command()) { error in
             switch error {
-            case let .terminated(code, _):
+            case let RunnableError.terminated(code, _):
                 XCTAssertEqual(code, 1)
             default:
                 XCTFail(error.localizedDescription)
             }
-        } catch {
-            XCTFail(error.localizedDescription)
         }
     }
     
@@ -41,6 +36,7 @@ final class CommandTests: XCTestCase {
             XCTFail(error.localizedDescription)
         }
     }
+    
     func testCommands() async throws {
         let directory = URL(filePath: #filePath).deletingLastPathComponent()
         
@@ -62,8 +58,8 @@ final class CommandTests: XCTestCase {
     
     func testPipe() async throws {
         let echo = Command("echo", "Hello World")
-        let cat = Command("rev")
-        let task = echo | cat
+        let rev = Command("rev")
+        let task = echo | rev
         let output = try await task.capture()
         XCTAssertEqual("dlroW olleH", output, trimming: .whitespacesAndNewlines)
     }
@@ -92,15 +88,15 @@ final class CommandTests: XCTestCase {
     
     func testPiped() async throws {
         let echo = Command("echo", "Hello World")
-        let cat = Command("rev")
-        guard let task = try [echo, cat].piped() else { return }
+        let rev = Command("rev")
+        guard let task = try [echo, rev].piped() else { return }
         let output = try await task.capture()
         XCTAssertEqual("dlroW olleH", output, trimming: .whitespacesAndNewlines)
     }
     
     func testIsAvailable() async throws {
-        let echo = await Command.isAvailable("cat")
-        XCTAssertTrue(echo)
+        let cat = await Command.isAvailable("cat")
+        XCTAssertTrue(cat)
         let someUnavailableCommand = await Command.isAvailable("someUnavailableCommand")
         XCTAssertFalse(someUnavailableCommand)
     }
