@@ -115,15 +115,9 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
         for try await output in stream() {
             switch output {
             case let .output(data):
-                if let string = String(data: data, encoding: .utf8) {
-                    fputs(string, Darwin.stdout)
-                    fflush(Darwin.stdout)
-                }
+                try FileHandle.standardOutput.write(contentsOf: data)
             case let .error(data):
-                if let string = String(data: data, encoding: .utf8) {
-                    fputs(string, Darwin.stderr)
-                    fflush(Darwin.stderr)
-                }
+                try FileHandle.standardError.write(contentsOf: data)
             }
         }
     }
