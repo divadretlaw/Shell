@@ -16,8 +16,13 @@ public final class Script: CommandRunnable, ExpressibleByStringLiteral {
     /// Create a script to execute
     /// - Parameters:
     ///   - shell: The ``Shell/Shell`` to use. Defaults to ``Shell/Shell/sh``.
+    ///   - environment: The environment the command should inherit.
     ///   - script: Callback to create a script to execute.
-    public convenience init(shell: Shell = .sh, script: () -> String) {
+    public convenience init(
+        shell: Shell = .sh,
+        environment: [String: String] = ProcessInfo.processInfo.environment,
+        script: () -> String
+    ) {
         self.init(script(), shell: shell)
     }
     
@@ -25,8 +30,13 @@ public final class Script: CommandRunnable, ExpressibleByStringLiteral {
     /// - Parameters:
     ///   - script: The script to execute.
     ///   - shell: The ``Shell/Shell`` to use. Defaults to ``Shell/Shell/zsh``.
-    public init(_ script: String, shell: Shell = .zsh) {
-        self.command = Command(arguments: [shell.rawValue, "-c", script], currentDirectoryURL: nil)
+    ///   - environment: The environment the command should inherit.
+    public init(
+        _ script: String,
+        shell: Shell = .zsh,
+        environment: [String: String] = ProcessInfo.processInfo.environment
+    ) {
+        self.command = Command(arguments: [shell.rawValue, "-c", script], currentDirectoryURL: nil, environment: environment)
     }
     
     // MARK: - ExpressibleByStringLiteral
