@@ -20,7 +20,7 @@ public final class Script: CommandRunnable, ExpressibleByStringLiteral {
     ///   - script: Callback to create a script to execute.
     public convenience init(
         shell: Shell = .sh,
-        environment: [String: String] = ProcessInfo.processInfo.environment,
+        environment: [String: String] = ShellEnvironment.shared.environment,
         script: () -> String
     ) {
         self.init(script(), shell: shell)
@@ -34,7 +34,7 @@ public final class Script: CommandRunnable, ExpressibleByStringLiteral {
     public init(
         _ script: String,
         shell: Shell = .zsh,
-        environment: [String: String] = ProcessInfo.processInfo.environment
+        environment: [String: String] = ShellEnvironment.shared.environment
     ) {
         self.command = Command(arguments: [shell.rawValue, "-c", script], currentDirectoryURL: nil, environment: environment)
     }

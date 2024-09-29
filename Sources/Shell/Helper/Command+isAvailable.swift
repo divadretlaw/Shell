@@ -15,7 +15,7 @@ extension Command {
     /// - Returns: Whether the command is available
     public static func isAvailable(
         _ command: String,
-        environment: [String: String] = ProcessInfo.processInfo.environment
+        environment: [String: String] = ShellEnvironment.shared.environment
     ) async -> Bool {
         guard let value = command.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) else {
             return false

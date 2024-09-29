@@ -25,7 +25,7 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
     public convenience init(
         _ arguments: String...,
         currentDirectoryURL: URL? = URL(filePath: FileManager.default.currentDirectoryPath),
-        environment: [String: String] = ProcessInfo.processInfo.environment
+        environment: [String: String] = ShellEnvironment.shared.environment
     ) {
         self.init(
             arguments: arguments,
@@ -42,7 +42,7 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
     public convenience init(
         arguments: [String],
         currentDirectoryURL: URL? = URL(filePath: FileManager.default.currentDirectoryPath),
-        environment: [String: String] = ProcessInfo.processInfo.environment
+        environment: [String: String] = ShellEnvironment.shared.environment
     ) {
         if let url = URL(systemPath: arguments.first, environment: environment) {
             self.init(url: url, arguments: Array(arguments.dropFirst()), currentDirectoryURL: currentDirectoryURL, environment: environment)
@@ -61,7 +61,7 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
         url: URL,
         arguments: [String]? = nil,
         currentDirectoryURL: URL? = URL(filePath: FileManager.default.currentDirectoryPath),
-        environment: [String: String] = ProcessInfo.processInfo.environment
+        environment: [String: String] = ShellEnvironment.shared.environment
     ) {
         let process = Process()
         let stdout = Pipe()
