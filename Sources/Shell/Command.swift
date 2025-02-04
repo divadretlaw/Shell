@@ -12,6 +12,7 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
     private let process: Process
     private let standardOutput: Pipe
     private let standardError: Pipe
+    private let standardInput: Pipe
     private let queue: DispatchQueue
     private let _caller: Lock<Runnable?>
     
@@ -66,6 +67,7 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
         let process = Process()
         let stdout = Pipe()
         let stderr = Pipe()
+        let stdin = Pipe()
         
         process.executableURL = url
         process.arguments = arguments ?? []
@@ -73,11 +75,13 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
         process.environment = environment
         process.standardOutput = stdout
         process.standardError = stderr
+        process.standardInput = stdin
         
         let name = url.lastPathComponent
         self.process = process
         self.standardOutput = stdout
         self.standardError = stderr
+        self.standardInput = stdin
         self.queue = DispatchQueue(label: "at.davidwalter.shell.\(name)")
         self._caller = nil
     }
@@ -174,17 +178,13 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
                     }
                 }
                 
-                // if process.standardInput == nil {
-                //     let stdin = Pipe()
-                //     process.standardInput = stdin
-                //     let fileHandle = FileHandle(fileDescriptor: STDIN_FILENO)
-                //     fileHandle.readabilityHandler = { handle in
-                //         let data = handle.availableData
-                //         if !data.isEmpty {
-                //             stdin.fileHandleForWriting.write(data)
-                //         }
-                //     }
-                // }
+                let fileHandle = FileHandle(fileDescriptor: STDIN_FILENO)
+                fileHandle.readabilityHandler = { [standardInput] handle in
+                    let data = handle.availableData
+                    if !data.isEmpty {
+                        standardInput.fileHandleForWriting.write(data)
+                    }
+                }
                 
                 do {
                     try run()

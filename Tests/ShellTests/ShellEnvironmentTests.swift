@@ -12,4 +12,3 @@ final class ShellEnvironmentTests: XCTestCase {
         XCTAssertEqual(ShellEnvironment.shared.environment["TEST"], "1")
     }
 }
-
