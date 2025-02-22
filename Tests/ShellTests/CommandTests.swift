@@ -2,14 +2,20 @@ import XCTest
 @testable import Shell
 
 final class CommandTests: XCTestCase {
-    func testCommand() async throws {
+    func testCommandWithoutArguments() async throws {
+        let command = Command("uptime")
+        let output = try await command.capture()
+        XCTAssertTrue(output.contains("load average"))
+    }
+    
+    func testCommandWithArguments() async throws {
         let command = Command("echo", "Hello World")
         let output = try await command.capture()
         XCTAssertEqual("Hello World", output, trimming: .whitespacesAndNewlines)
     }
     
     func testFailingCommand() async throws {
-        let command = Command("false")
+        let command = Command("cd", "notADirectory")
         await XCTAssertThrowsError(try await command()) { error in
             switch error {
             case let RunnableError.terminated(code, _):
@@ -66,8 +72,8 @@ final class CommandTests: XCTestCase {
     
     func testRedirect() async throws {
         let echo = Command("echo", "Hello World")
-        let cat = Command("rev")
-        let task = cat.redirected(from: echo)
+        let rev = Command("rev")
+        let task = rev.redirected(from: echo)
         let output = try await task.capture()
         XCTAssertEqual("dlroW olleH", output, trimming: .whitespacesAndNewlines)
     }
