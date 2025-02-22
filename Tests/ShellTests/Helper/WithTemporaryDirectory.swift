@@ -1,7 +1,6 @@
 import Foundation
-import XCTest
 
-func XCTTemporaryDirectory(
+func withTemporaryDirectory(
     path: String? = nil,
     fileManager: FileManager = .default,
     perform: (URL) async throws -> Void

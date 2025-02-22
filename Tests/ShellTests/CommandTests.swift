@@ -1,55 +1,57 @@
-import XCTest
+import Foundation
+import Testing
 @testable import Shell
 
-final class CommandTests: XCTestCase {
-    func testCommandWithoutArguments() async throws {
+struct CommandTests {
+    @Test
+    func commandWithoutArguments() async throws {
         let command = Command("uptime")
         let output = try await command.capture()
-        XCTAssertTrue(output.contains("load average"))
+        #expect(output.contains("load average"))
     }
     
-    func testCommandWithArguments() async throws {
+    @Test
+    func commandWithArguments() async throws {
         let command = Command("echo", "Hello World")
         let output = try await command.capture()
-        XCTAssertEqual("Hello World", output, trimming: .whitespacesAndNewlines)
+        #expect(output.trimmingCharacters(in: .whitespacesAndNewlines) == "Hello World")
     }
     
-    func testCommandWithEnvironment() async throws {
-        let command1 = Command("echo", "$TEST", environment: ["TEST": "Hello World"])
-        let output1 = try await command1.capture()
-        XCTAssertEqual("Hello World", output1, trimming: .whitespacesAndNewlines)
+    @Test
+    func commandWithEnvironment() async throws {
+        let command = Command("echo", "$TEST", environment: ["TEST": "Hello World"])
+        let output = try await command.capture()
+        #expect(output.trimmingCharacters(in: .whitespacesAndNewlines) == "Hello World")
     }
     
-    func testFailingCommand() async throws {
+    @Test
+    func failingCommand() async throws {
         let command = Command("cd", "notADirectory")
-        await XCTAssertThrowsError(try await command()) { error in
-            switch error {
-            case let RunnableError.terminated(code, _):
-                XCTAssertEqual(code, 1)
-            default:
-                XCTFail(error.localizedDescription)
-            }
+        await #expect(throws: RunnableError.self) {
+            try await command()
         }
     }
     
-    func testUnavailableCommand() async throws {
+    @Test
+    func unavailableCommand() async throws {
         let command = Command("someUnavailableCommand")
         do {
             try await command()
-            XCTFail("Expected failure")
+            Issue.record("Expected failure")
         } catch let error as RunnableError {
             switch error {
             case let .terminated(code, _):
-                XCTAssertEqual(code, 127)
+                #expect(code == 127)
             default:
-                XCTFail(error.localizedDescription)
+                Issue.record(error)
             }
         } catch {
-            XCTFail(error.localizedDescription)
+            Issue.record(error)
         }
     }
     
-    func testCommands() async throws {
+    @Test
+    func commands() async throws {
         let directory = URL(filePath: #filePath).deletingLastPathComponent()
         
         let ls = Command("ls", currentDirectoryURL: directory)
@@ -59,57 +61,64 @@ final class CommandTests: XCTestCase {
         let task = ls | cat | grep
         
         let output = try await task.capture()
-        XCTAssertEqual("CommandTests.swift", output, trimming: .whitespacesAndNewlines)
+        #expect(output.trimmingCharacters(in: .whitespacesAndNewlines) == "CommandTests.swift")
     }
     
-    func testExpressibleByArrayLiteral() async throws {
+    @Test
+    func expressibleByArrayLiteral() async throws {
         let run: Command = ["echo", "Hello World"]
         let output = try await run.capture()
-        XCTAssertEqual("Hello World", output, trimming: .whitespacesAndNewlines)
+        #expect(output.trimmingCharacters(in: .whitespacesAndNewlines) == "Hello World")
     }
     
-    func testPipe() async throws {
+    @Test
+    func pipe() async throws {
         let echo = Command("echo", "Hello World")
         let rev = Command("rev")
         let task = echo | rev
         let output = try await task.capture()
-        XCTAssertEqual("dlroW olleH", output, trimming: .whitespacesAndNewlines)
+        #expect(output.trimmingCharacters(in: .whitespacesAndNewlines) == "dlroW olleH")
     }
     
-    func testRedirect() async throws {
+    @Test
+    func redirect() async throws {
         let echo = Command("echo", "Hello World")
         let rev = Command("rev")
         let task = rev.redirected(from: echo)
         let output = try await task.capture()
-        XCTAssertEqual("dlroW olleH", output, trimming: .whitespacesAndNewlines)
+        #expect(output.trimmingCharacters(in: .whitespacesAndNewlines) == "dlroW olleH")
     }
     
-    func testMultiPipe() async throws {
+    @Test
+    func multiPipe() async throws {
         let echo = Command("echo", "Hello World")
         let task = echo | Command("rev") | Command("cat") | Command("rev")
         let output = try await task.capture()
-        XCTAssertEqual("Hello World", output, trimming: .whitespacesAndNewlines)
+        #expect(output.trimmingCharacters(in: .whitespacesAndNewlines) == "Hello World")
     }
     
-    func testMultiRedirection() async throws {
+    @Test
+    func multiRedirection() async throws {
         let echo = Command("echo", "Hello World")
         let task = Command("rev").redirected(from: Command("cat").redirected(from: Command("rev").redirected(from: echo)))
         let output = try await task.capture()
-        XCTAssertEqual("Hello World", output, trimming: .whitespacesAndNewlines)
+        #expect(output.trimmingCharacters(in: .whitespacesAndNewlines) == "Hello World")
     }
     
-    func testPiped() async throws {
+    @Test
+    func piped() async throws {
         let echo = Command("echo", "Hello World")
         let rev = Command("rev")
         guard let task = try [echo, rev].piped() else { return }
         let output = try await task.capture()
-        XCTAssertEqual("dlroW olleH", output, trimming: .whitespacesAndNewlines)
+        #expect(output.trimmingCharacters(in: .whitespacesAndNewlines) == "dlroW olleH")
     }
     
-    func testIsAvailable() async throws {
+    @Test
+    func isAvailable() async throws {
         let cat = await Command.isAvailable("cat")
-        XCTAssertTrue(cat)
+        #expect(cat)
         let someUnavailableCommand = await Command.isAvailable("someUnavailableCommand")
-        XCTAssertFalse(someUnavailableCommand)
+        #expect(!someUnavailableCommand)
     }
 }

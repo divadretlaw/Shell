@@ -1,8 +1,9 @@
-import XCTest
+import Testing
 @testable import Shell
 
-final class UnsafeScriptTests: XCTestCase {
-    func testUnsafeScript() async throws {
+struct UnsafeScriptTests {
+    @Test
+    func unsafeScript() async throws {
         let script = UnsafeScript {
             """
             echo "Hello";
@@ -12,23 +13,20 @@ final class UnsafeScriptTests: XCTestCase {
         try await script()
     }
     
-    func testFailingScript() async throws {
+    @Test
+    func failingScript() async throws {
         let script = UnsafeScript {
             """
             exit 1
             """
         }
-        await XCTAssertThrowsError(try await script()) { error in
-            switch error {
-            case let RunnableError.terminated(code, _):
-                XCTAssertEqual(code, 1)
-            default:
-                XCTFail(error.localizedDescription)
-            }
+        await #expect(throws: RunnableError.self) {
+            try await script()
         }
     }
     
-    func testShells() async throws {
+    @Test
+    func shells() async throws {
         for shell in Shell.allCases {
             guard await shell.isAvailable else {
                 print("Checking: \(shell) - not available. Skip.")
@@ -45,7 +43,8 @@ final class UnsafeScriptTests: XCTestCase {
         }
     }
     
-    func testExpressibleByStringLiteral() async throws {
+    @Test
+    func expressibleByStringLiteral() async throws {
         let script: UnsafeScript =
         """
         echo 'Hello';

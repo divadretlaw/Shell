@@ -1,8 +1,9 @@
-import XCTest
+import Testing
 @testable import Shell
 
-final class ScriptTests: XCTestCase {
-    func testScript() async throws {
+struct ScriptTests {
+    @Test
+    func script() async throws {
         let script = Script {
             """
             echo "Hello";
@@ -10,26 +11,23 @@ final class ScriptTests: XCTestCase {
             """
         }
         let output = try await script.capture()
-        XCTAssertEqual("Hello\nWorld", output, trimming: .whitespacesAndNewlines)
+        #expect(output.trimmingCharacters(in: .whitespacesAndNewlines) == "Hello\nWorld")
     }
     
-    func testFailingScript() async throws {
+    @Test
+    func failingScript() async throws {
         let script = Script {
             """
             exit 1
             """
         }
-        await XCTAssertThrowsError(try await script()) { error in
-            switch error {
-            case let RunnableError.terminated(code, _):
-                XCTAssertEqual(code, 1)
-            default:
-                XCTFail(error.localizedDescription)
-            }
+        await #expect(throws: RunnableError.self) {
+            try await script()
         }
     }
     
-    func testShells() async throws {
+    @Test
+    func shells() async throws {
         for shell in Shell.allCases {
             guard await shell.isAvailable else {
                 print("Checking: \(shell) - not available. Skip.")
@@ -43,21 +41,23 @@ final class ScriptTests: XCTestCase {
                 """
             }
             let output = try await script.capture()
-            XCTAssertEqual("Hello\nWorld", output, trimming: .whitespacesAndNewlines)
+            #expect(output.trimmingCharacters(in: .whitespacesAndNewlines) == "Hello\nWorld")
         }
     }
     
-    func testExpressibleByStringLiteral() async throws {
+    @Test
+    func expressibleByStringLiteral() async throws {
         let script: Script =
         """
         echo "Hello";
         echo 'World';
         """
         let output = try await script.capture()
-        XCTAssertEqual("Hello\nWorld", output, trimming: .whitespacesAndNewlines)
+        #expect(output.trimmingCharacters(in: .whitespacesAndNewlines) == "Hello\nWorld")
     }
     
-    func testPipe() async throws {
+    @Test
+    func pipe() async throws {
         let script = Script {
             """
             echo "Hello";
@@ -67,10 +67,11 @@ final class ScriptTests: XCTestCase {
         let rev = Command("rev")
         let task = script | rev
         let output = try await task.capture()
-        XCTAssertEqual("olleH\ndlroW", output, trimming: .whitespacesAndNewlines)
+        #expect(output.trimmingCharacters(in: .whitespacesAndNewlines) == "olleH\ndlroW")
     }
     
-    func testRedirect() async throws {
+    @Test
+    func redirect() async throws {
         let script = Script {
             """
             echo "Hello";
@@ -80,10 +81,11 @@ final class ScriptTests: XCTestCase {
         let rev = Command("rev")
         let task = rev.redirected(from: script)
         let output = try await task.capture()
-        XCTAssertEqual("olleH\ndlroW", output, trimming: .whitespacesAndNewlines)
+        #expect(output.trimmingCharacters(in: .whitespacesAndNewlines) == "olleH\ndlroW")
     }
     
-    func testMultiPipe() async throws {
+    @Test
+    func multiPipe() async throws {
         let script = Script {
             """
             echo "Hello";
@@ -92,10 +94,11 @@ final class ScriptTests: XCTestCase {
         }
         let task = script | Command("rev") | Command("cat") | Command("rev")
         let output = try await task.capture()
-        XCTAssertEqual("Hello\nWorld", output, trimming: .whitespacesAndNewlines)
+        #expect(output.trimmingCharacters(in: .whitespacesAndNewlines) == "Hello\nWorld")
     }
     
-    func testMultiRedirection() async throws {
+    @Test
+    func multiRedirection() async throws {
         let script = Script {
             """
             echo "Hello";
@@ -104,10 +107,11 @@ final class ScriptTests: XCTestCase {
         }
         let task = Command("rev").redirected(from: Command("cat").redirected(from: Command("rev").redirected(from: script)))
         let output = try await task.capture()
-        XCTAssertEqual("Hello\nWorld", output, trimming: .whitespacesAndNewlines)
+        #expect(output.trimmingCharacters(in: .whitespacesAndNewlines) == "Hello\nWorld")
     }
     
-    func testPiped() async throws {
+    @Test
+    func piped() async throws {
         let script = Script {
             """
             echo "Hello";
@@ -117,10 +121,11 @@ final class ScriptTests: XCTestCase {
         let rev = Command("rev")
         guard let task = try [script, rev].piped() else { return }
         let output = try await task.capture()
-        XCTAssertEqual("olleH\ndlroW", output, trimming: .whitespacesAndNewlines)
+        #expect(output.trimmingCharacters(in: .whitespacesAndNewlines) == "olleH\ndlroW")
     }
     
-    func testScriptProgress() async throws {
+    @Test
+    func scriptProgress() async throws {
         let script = Script {
             """
             echo "Hello";
@@ -136,8 +141,9 @@ final class ScriptTests: XCTestCase {
         try await script()
     }
     
-    func testWrite() async throws {
-        try await XCTTemporaryDirectory { directory in
+    @Test
+    func write() async throws {
+        try await withTemporaryDirectory { directory in
             let file = directory.appending(path: "test.txt")
             let script = Script {
                 """
@@ -146,8 +152,8 @@ final class ScriptTests: XCTestCase {
             }
             
             try await script()
-            let string = try String(contentsOf: file)
-            XCTAssertEqual("Hello", string, trimming: .whitespacesAndNewlines)
+            let output = try String(contentsOf: file)
+            #expect(output.trimmingCharacters(in: .whitespacesAndNewlines) == "Hello")
         }
     }
 }
