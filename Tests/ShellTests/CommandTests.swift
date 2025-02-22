@@ -14,6 +14,12 @@ final class CommandTests: XCTestCase {
         XCTAssertEqual("Hello World", output, trimming: .whitespacesAndNewlines)
     }
     
+    func testCommandWithEnvironment() async throws {
+        let command1 = Command("echo", "$TEST", environment: ["TEST": "Hello World"])
+        let output1 = try await command1.capture()
+        XCTAssertEqual("Hello World", output1, trimming: .whitespacesAndNewlines)
+    }
+    
     func testFailingCommand() async throws {
         let command = Command("cd", "notADirectory")
         await XCTAssertThrowsError(try await command()) { error in

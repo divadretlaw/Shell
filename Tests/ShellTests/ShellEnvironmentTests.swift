@@ -11,4 +11,13 @@ final class ShellEnvironmentTests: XCTestCase {
         XCTAssertNotEqual(ShellEnvironment.shared.environment, ProcessInfo.processInfo.environment)
         XCTAssertEqual(ShellEnvironment.shared.environment["TEST"], "1")
     }
+    
+    func testExpand() {
+        let environment = ["TEST": "1"]
+        XCTAssertEqual(ShellEnvironment.expand(arguments: ["$TEST", "$OTHER"], environment: environment), ["1", ""])
+        XCTAssertEqual(ShellEnvironment.expand(arguments: ["${TEST}", "${OTHER}"], environment: environment), ["1", ""])
+        XCTAssertEqual(ShellEnvironment.expand(arguments: ["${TEST:-2}", "${OTHER:-3}"], environment: environment), ["1", "3"])
+        
+        XCTAssertEqual(ShellEnvironment.expand(arguments: ["$TEST,${OTHER:-3},${TEST:-2}"], environment: environment), ["1,3,1"])
+    }
 }

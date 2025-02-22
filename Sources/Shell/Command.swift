@@ -72,7 +72,7 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
         let stdin = Pipe()
         
         process.executableURL = url
-        process.arguments = arguments ?? []
+        process.arguments = ShellEnvironment.expand(arguments: arguments, environment: environment)
         process.currentDirectoryURL = currentDirectoryURL
         process.environment = environment
         process.standardOutput = stdout
