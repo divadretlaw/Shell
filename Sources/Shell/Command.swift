@@ -13,7 +13,9 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
     private let standardOutput: Pipe
     private let standardError: Pipe
     private let standardInput: Pipe
+    
     private let queue: DispatchQueue
+    
     private let _caller: Lock<Runnable?>
     
     // MARK: - init

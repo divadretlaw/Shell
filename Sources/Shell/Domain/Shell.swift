@@ -17,6 +17,7 @@ public enum Shell: String, CaseIterable, Identifiable, Equatable, Hashable, Send
     case tcsh = "tcsh"
     case zsh = "zsh"
     
+    /// Checks if the shell is available
     public var isAvailable: Bool {
         get async {
             await Command.isAvailable(rawValue)
