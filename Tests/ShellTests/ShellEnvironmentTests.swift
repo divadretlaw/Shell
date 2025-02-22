@@ -20,4 +20,9 @@ final class ShellEnvironmentTests: XCTestCase {
         
         XCTAssertEqual(ShellEnvironment.expand(arguments: ["$TEST,${OTHER:-3},${TEST:-2}"], environment: environment), ["1,3,1"])
     }
+    
+    func testExpandExpand() {
+        let environment = ["TEST": "$OTHER", "OTHER": "1"]
+        XCTAssertEqual(ShellEnvironment.expand(arguments: ["${OTHER_TEST:-$TEST}"], environment: environment), ["1"])
+    }
 }

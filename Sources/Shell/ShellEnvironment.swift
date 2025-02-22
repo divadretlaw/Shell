@@ -43,11 +43,14 @@ private extension String {
         do {
             var result = self
             
-            for match in matches(of:  try Regex("\\$\\w+")) {
+            for match in matches(of: try Regex("\\${\\w+:-.*?}")) {
                 let variable = self[match.range]
-                let key = variable.dropFirst()
-                if let value = environment[String(key)] {
+                let keyContent = String(variable.dropFirst(2).dropLast())
+                let parts = keyContent.split(separator: ":-", maxSplits: 1, omittingEmptySubsequences: false)
+                if let key = parts.first, let value = environment[String(key)] {
                     result = result.replacingOccurrences(of: variable, with: value.expand(with: environment))
+                } else if let fallback = parts.last {
+                    result = result.replacingOccurrences(of: variable, with: String(fallback).expand(with: environment))
                 } else {
                     result = result.replacingOccurrences(of: variable, with: "")
                 }
@@ -63,14 +66,11 @@ private extension String {
                 }
             }
             
-            for match in matches(of: try Regex("\\${\\w+:-.*?}")) {
+            for match in matches(of:  try Regex("\\$\\w+")) {
                 let variable = self[match.range]
-                let keyContent = String(variable.dropFirst(2).dropLast())
-                let parts = keyContent.split(separator: ":-", maxSplits: 1, omittingEmptySubsequences: false)
-                if let key = parts.first, let value = environment[String(key)] {
+                let key = variable.dropFirst()
+                if let value = environment[String(key)] {
                     result = result.replacingOccurrences(of: variable, with: value.expand(with: environment))
-                } else if let fallback = parts.last {
-                    result = result.replacingOccurrences(of: variable, with: String(fallback).expand(with: environment))
                 } else {
                     result = result.replacingOccurrences(of: variable, with: "")
                 }
