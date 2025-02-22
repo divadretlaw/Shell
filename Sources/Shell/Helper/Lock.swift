@@ -6,26 +6,25 @@
 //
 
 import Foundation
+import os
 
 @propertyWrapper
 final class Lock<T>: @unchecked Sendable where T: Sendable {
-    private var _value: T
-    private let lock: NSLocking
+    private let _value: OSAllocatedUnfairLock<T>
     
-    init(_ value: T, lock: NSLocking = NSLock()) {
-        self._value = value
-        self.lock = lock
+    init(_ value: T) {
+        self._value = OSAllocatedUnfairLock(initialState: value)
     }
     
     var wrappedValue: T {
         get {
-            lock.withLock {
-                _value
+            _value.withLock {
+                $0
             }
         }
         set {
-            lock.withLock {
-                _value = newValue
+            _value.withLock {
+                $0 = newValue
             }
         }
     }
