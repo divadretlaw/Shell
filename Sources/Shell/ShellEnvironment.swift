@@ -6,27 +6,28 @@
 //
 
 import Foundation
+import os
 
 public final class ShellEnvironment: @unchecked Sendable {
     public static let shared = ShellEnvironment()
     
-    private var _environment: [String: String]
-    private let lock = NSLock()
+    private let _environment: OSAllocatedUnfairLock<[String: String]>
     
     init() {
-        _environment = [:]
+        _environment = OSAllocatedUnfairLock(initialState: [:])
     }
     
     public func set(environment: [String: String]) {
-        lock.withLock {
-            _environment = environment
+        _environment.withLock {
+            $0 = environment
         }
     }
     
     public var environment: [String: String] {
-        let environment = lock.withLock { _environment }
-        return ProcessInfo.processInfo.environment.merging(environment) { lhs, rhs in
-            rhs
+        _environment.withLock {
+            ProcessInfo.processInfo.environment.merging($0) { lhs, rhs in
+                rhs
+            }
         }
     }
 }

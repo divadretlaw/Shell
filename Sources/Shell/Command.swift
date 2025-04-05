@@ -119,6 +119,7 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
             try caller.run()
         }
         try process.run()
+        tcsetpgrp(STDIN_FILENO, process.processIdentifier)
     }
     
     public func callAsFunction() async throws {
@@ -183,15 +184,7 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
                         error.wrappedValue.append(output)
                     }
                 }
-                
-                let fileHandle = FileHandle(fileDescriptor: STDIN_FILENO)
-                fileHandle.readabilityHandler = { [standardInput] handle in
-                    let data = handle.availableData
-                    if !data.isEmpty {
-                        standardInput.fileHandleForWriting.write(data)
-                    }
-                }
-                
+
                 do {
                     try run()
                     process.waitUntilExit()

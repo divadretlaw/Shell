@@ -5,12 +5,6 @@
 //  Created by David Walter on 20.03.21.
 //
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <stdlib.h>
 
 int swiftSystem(const char *cmd);
-
-#ifdef __cplusplus
-}
-#endif
