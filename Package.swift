@@ -12,6 +12,10 @@ let package = Package(
         .library(
             name: "Shell",
             targets: ["Shell"]
+        ),
+        .library(
+            name: "ShellStyle",
+            targets: ["ShellStyle"]
         )
     ],
     targets: [
@@ -19,10 +23,15 @@ let package = Package(
             name: "Shell",
             dependencies: ["SwiftSystem"]
         ),
+        .target( name: "ShellStyle"),
         .target(name: "SwiftSystem"),
         .testTarget(
             name: "ShellTests",
             dependencies: ["Shell"]
+        ),
+        .testTarget(
+            name: "ShellStyleTests",
+            dependencies: ["ShellStyle"]
         )
     ]
 )
