@@ -15,17 +15,17 @@ extension URL {
             return nil
         }
     }
-    
+
     private static func _systemPath(item: String?, path: String) -> URL? {
         guard let item else { return nil }
-        
+
         for directory in path.split(separator: ":") {
             let url = URL(filePath: String(directory), directoryHint: .isDirectory).appending(path: item)
             if FileManager.default.fileExists(atPath: url.path(percentEncoded: false)) {
                 return url
             }
         }
-        
+
         return nil
     }
 }

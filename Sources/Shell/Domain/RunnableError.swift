@@ -13,9 +13,9 @@ public enum RunnableError: Error, CustomStringConvertible {
     case terminated(_ status: Int32, stderr: String?)
     /// The ``Runnable`` was signalled
     case signalled(_ status: Int32)
-    
+
     // MARK: - CustomStringConvertible
-    
+
     public var description: String {
         switch self {
         case let .terminated(status, _):

@@ -9,7 +9,7 @@ struct ExpansionTests {
         #expect("${TEST}".expand(with: environment) == "1")
         #expect("${TEST:-}".expand(with: environment) == "1")
     }
-    
+
     @Test
     func expandUnknown() {
         let environment = ["TEST": "1"]
@@ -17,7 +17,7 @@ struct ExpansionTests {
         #expect("${UNKNOWN}".expand(with: environment) == "")
         #expect("${UNKNOWN:-fallback}".expand(with: environment) == "fallback")
     }
-    
+
     @Test
     func expandLevel() {
         let environment = ["TEST": "$OTHER", "OTHER": "1"]
@@ -25,7 +25,7 @@ struct ExpansionTests {
         #expect("${TEST}".expand(with: environment) == "1")
         #expect("${TEST:-}".expand(with: environment) == "1")
     }
-    
+
     @Test
     func expandMulti() {
         let environment = ["TEST": "1", "OTHER": "2"]

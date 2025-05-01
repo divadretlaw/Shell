@@ -7,7 +7,7 @@ struct ShellEnvironmentTests {
     func defaultEnvironment() {
         #expect(!ShellEnvironment.shared.environment.isEmpty)
     }
-    
+
     @Test
     func setEnvironment() {
         ShellEnvironment.shared.set(environment: ["TEST": "1"])

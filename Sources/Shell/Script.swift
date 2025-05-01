@@ -10,9 +10,9 @@ import Foundation
 /// A script to run with a shell
 public final class Script: CommandRunnable, ExpressibleByStringLiteral {
     public let command: Command
-    
+
     // MARK: - init
-    
+
     /// Create a script to execute
     /// - Parameters:
     ///   - shell: The ``Shell/Shell`` to use. Defaults to ``Shell/Shell/sh``.
@@ -25,7 +25,7 @@ public final class Script: CommandRunnable, ExpressibleByStringLiteral {
     ) {
         self.init(script(), shell: shell)
     }
-    
+
     /// Create a script to execute
     /// - Parameters:
     ///   - script: The script to execute.
@@ -38,9 +38,9 @@ public final class Script: CommandRunnable, ExpressibleByStringLiteral {
     ) {
         self.command = Command(arguments: [shell.rawValue, "-c", script], currentDirectoryURL: nil, environment: environment)
     }
-    
+
     // MARK: - ExpressibleByStringLiteral
-    
+
     public convenience init(stringLiteral value: String) {
         self.init(value)
     }

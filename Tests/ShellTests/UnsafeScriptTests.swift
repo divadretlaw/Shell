@@ -12,7 +12,7 @@ struct UnsafeScriptTests {
         }
         try await script()
     }
-    
+
     @Test
     func failingScript() async throws {
         let script = UnsafeScript {
@@ -24,7 +24,7 @@ struct UnsafeScriptTests {
             try await script()
         }
     }
-    
+
     @Test
     func shells() async throws {
         for shell in Shell.allCases {
@@ -42,14 +42,14 @@ struct UnsafeScriptTests {
             try await script()
         }
     }
-    
+
     @Test
     func expressibleByStringLiteral() async throws {
         let script: UnsafeScript =
-        """
-        echo 'Hello';
-        echo 'World';
-        """
+            """
+            echo 'Hello';
+            echo 'World';
+            """
         try await script()
     }
 }

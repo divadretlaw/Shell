@@ -20,7 +20,7 @@ extension Command {
         guard let value = command.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) else {
             return false
         }
-        
+
         do {
             let command = Command("command", "-v", value, environment: environment)
             _ = try await command.capture()

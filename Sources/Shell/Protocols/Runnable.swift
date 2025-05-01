@@ -12,7 +12,7 @@ public protocol Runnable: Sendable {
     var caller: Runnable? { get }
     /// The `stdout` pipe
     var stdout: Pipe { get }
-    
+
     /// Pipe the output of the ``Runnable`` to the given ``Runnable``
     /// - Parameter caller: The ``Runnable`` that should provides its output as input.
     /// - Returns: The updated ``Runnable``
@@ -21,7 +21,7 @@ public protocol Runnable: Sendable {
     /// - Parameter other: The ``Runnable`` that should receive the output as input.
     /// - Returns: The updated ``Runnable``
     func pipe(_ other: Runnable) -> Runnable
-    
+
     /// Starts the process and all of its callers
     func run() throws
     /// Runs the process and all of its callers
@@ -38,8 +38,8 @@ extension Runnable {
     }
 }
 
-public extension [Runnable] {
-    func piped() throws -> Runnable? {
+extension [Runnable] {
+    public func piped() throws -> Runnable? {
         guard var task = first else { return nil }
         for run in dropFirst() {
             task = task.pipe(run)

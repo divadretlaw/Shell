@@ -13,13 +13,13 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
     private let standardOutput: Pipe
     private let standardError: Pipe
     private let standardInput: Pipe
-    
+
     private let queue: DispatchQueue
-    
+
     private let _caller: Lock<Runnable?>
-    
+
     // MARK: - init
-    
+
     /// Create a command to execute
     /// - Parameters:
     ///   - arguments: The command arguments. The first argument is the executable.
@@ -36,7 +36,7 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
             environment: environment
         )
     }
-    
+
     /// Create a command to execute
     /// - Parameters:
     ///   - arguments: The command arguments. The first argument is the executable.
@@ -53,7 +53,7 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
             self.init(url: URL(filePath: "/usr/bin/env"), arguments: arguments, currentDirectoryURL: currentDirectoryURL, environment: environment)
         }
     }
-    
+
     /// Create a command to execute
     /// - Parameters:
     ///   - url: The url to the executable.
@@ -70,19 +70,20 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
         let stdout = Pipe()
         let stderr = Pipe()
         let stdin = Pipe()
-        
+
         process.executableURL = url
-        process.arguments = arguments.map { arguments in
-            arguments.map { argument in
-                argument.expand(with: environment)
-            }
-        } ?? []
+        process.arguments =
+            arguments.map { arguments in
+                arguments.map { argument in
+                    argument.expand(with: environment)
+                }
+            } ?? []
         process.currentDirectoryURL = currentDirectoryURL
         process.environment = environment
         process.standardOutput = stdout
         process.standardError = stderr
         process.standardInput = stdin
-        
+
         let name = url.lastPathComponent
         self.process = process
         self.standardOutput = stdout
@@ -91,29 +92,29 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
         self.queue = DispatchQueue(label: "at.davidwalter.shell.\(name)")
         self._caller = nil
     }
-    
+
     // MARK: - ExpressibleByArrayLiteral
-    
+
     public convenience init(arrayLiteral elements: String...) {
         self.init(arguments: elements)
     }
-    
+
     // MARK: - Runnable
-    
+
     public var caller: Runnable? {
         _caller.wrappedValue
     }
-    
+
     public var stdout: Pipe {
         standardOutput
     }
-    
+
     public func redirected(from runner: Runnable) -> Runnable {
         _caller.wrappedValue = runner
         process.standardInput = runner.stdout
         return self
     }
-    
+
     public func run() throws {
         if let caller {
             try caller.run()
@@ -121,7 +122,7 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
         try process.run()
         tcsetpgrp(STDIN_FILENO, process.processIdentifier)
     }
-    
+
     public func callAsFunction() async throws {
         for try await output in stream() {
             switch output {
@@ -132,7 +133,7 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
             }
         }
     }
-    
+
     public func capture() async throws -> String {
         var results: [String] = []
         for try await output in stream() {
@@ -150,14 +151,14 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
         }
         return results.joined()
     }
-    
+
     public func stream() -> AsyncThrowingStream<RunnableOutput, Error> {
         AsyncThrowingStream(RunnableOutput.self, bufferingPolicy: .unbounded) { continuation in
             queue.async { [weak self] in
                 guard let self else {
                     return continuation.finish()
                 }
-                
+
                 continuation.onTermination = { [process] termination in
                     switch termination {
                     case .cancelled:
@@ -168,16 +169,16 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
                         break
                     }
                 }
-                
+
                 let error: Lock<[String]> = []
-                
+
                 standardOutput.fileHandleForReading.readabilityHandler = { handle in
                     let data = handle.availableData
                     if !data.isEmpty {
                         continuation.yield(.output(data))
                     }
                 }
-                
+
                 standardError.fileHandleForReading.readabilityHandler = { handle in
                     let data = handle.availableData
                     if !data.isEmpty, let output = String(data: data, encoding: .utf8) {
@@ -188,18 +189,18 @@ public final class Command: Runnable, ExpressibleByArrayLiteral {
                 do {
                     try run()
                     process.waitUntilExit()
-                    
+
                     if let data = try standardOutput.fileHandleForReading.readToEnd(), !data.isEmpty {
                         continuation.yield(.output(data))
                     }
-                    
+
                     if let data = try standardError.fileHandleForReading.readToEnd(), !data.isEmpty {
                         continuation.yield(.error(data))
                         if let output = String(data: data, encoding: .utf8) {
                             error.wrappedValue.append(output)
                         }
                     }
-                    
+
                     let terminationStatus = process.terminationStatus
                     switch process.terminationReason {
                     case .exit:

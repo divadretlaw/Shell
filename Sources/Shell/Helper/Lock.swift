@@ -11,11 +11,11 @@ import os
 @propertyWrapper
 final class Lock<T>: @unchecked Sendable where T: Sendable {
     private let _value: OSAllocatedUnfairLock<T>
-    
+
     init(_ value: T) {
         self._value = OSAllocatedUnfairLock(initialState: value)
     }
-    
+
     var wrappedValue: T {
         get {
             _value.withLock {
@@ -65,4 +65,3 @@ extension Lock: ExpressibleByArrayLiteral where T: ExpressibleByArrayLiteral {
         self.init(elements as! T)
     }
 }
-

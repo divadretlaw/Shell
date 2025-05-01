@@ -11,7 +11,7 @@ extension String {
     func expand(with environment: [String: String]) -> String {
         do {
             var result = self
-            
+
             for match in matches(of: try Regex("\\${\\w+:-.*?}")) {
                 let variable = self[match.range]
                 let keyContent = String(variable.dropFirst(2).dropLast())
@@ -24,7 +24,7 @@ extension String {
                     result = result.replacingOccurrences(of: variable, with: "")
                 }
             }
-            
+
             for match in matches(of: try Regex("\\${\\w+}")) {
                 let variable = self[match.range]
                 let key = variable.dropFirst(2).dropLast()
@@ -34,8 +34,8 @@ extension String {
                     result = result.replacingOccurrences(of: variable, with: "")
                 }
             }
-            
-            for match in matches(of:  try Regex("\\$\\w+")) {
+
+            for match in matches(of: try Regex("\\$\\w+")) {
                 let variable = self[match.range]
                 let key = variable.dropFirst()
                 if let value = environment[String(key)] {
@@ -44,7 +44,7 @@ extension String {
                     result = result.replacingOccurrences(of: variable, with: "")
                 }
             }
-            
+
             return result
         } catch {
             return self

@@ -16,22 +16,22 @@ public enum Shell: String, CaseIterable, Identifiable, Equatable, Hashable, Send
     case fish = "fish"
     case tcsh = "tcsh"
     case zsh = "zsh"
-    
+
     /// Checks if the shell is available
     public var isAvailable: Bool {
         get async {
             await Command.isAvailable(rawValue)
         }
     }
-    
+
     // MARK: - Identifiable
-    
+
     public var id: String {
         rawValue
     }
-    
+
     // MARK: - CustomStringConvertible
-    
+
     public var description: String {
         switch self {
         case .sh:
