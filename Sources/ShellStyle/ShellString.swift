@@ -8,6 +8,18 @@
 import Foundation
 
 struct ShellString {
+    static let shouldRender: Bool = {
+        // https://force-color.org
+        if let value = ProcessInfo.processInfo.environment["FORCE_COLOR"], value != "0" {
+            return true
+        }
+        if let value = ProcessInfo.processInfo.environment["NO_COLOR"], value != "0" {
+            return false
+        }
+        guard let term = ProcessInfo.processInfo.environment["TERM"] else { return false }
+        return term.caseInsensitiveCompare("dumb") != .orderedSame && isatty(fileno(stdout)) != 0
+    }()
+
     // Format & Inverse Format
     private var format: Set<Format>
     private var inverseFormat: Set<InverseFormat>
@@ -144,7 +156,11 @@ struct ShellString {
     }
 
     func render() -> String {
-        "\u{001B}[\(codes.map(\.description).joined(separator: ";"))m\(rawValue)\u{001B}[0m"
+        if ShellString.shouldRender {
+            "\u{001B}[\(codes.map(\.description).joined(separator: ";"))m\(rawValue)\u{001B}[0m"
+        } else {
+            rawValue
+        }
     }
 
     // MARK: - Modifier
