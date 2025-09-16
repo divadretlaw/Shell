@@ -1,6 +1,5 @@
 import Testing
 @testable import ShellStyle
-import OSLog
 
 struct ShellStyleTests {
     @Test

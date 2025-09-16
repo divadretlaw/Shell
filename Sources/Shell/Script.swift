@@ -29,11 +29,11 @@ public final class Script: CommandRunnable, ExpressibleByStringLiteral {
     /// Create a script to execute
     /// - Parameters:
     ///   - script: The script to execute.
-    ///   - shell: The ``Shell/Shell`` to use. Defaults to ``Shell/Shell/zsh``.
+    ///   - shell: The ``Shell/Shell`` to use. Defaults to ``Shell/Shell/zh``.
     ///   - environment: The environment the command should inherit.
     public init(
         _ script: String,
-        shell: Shell = .zsh,
+        shell: Shell = .sh,
         environment: [String: String] = ShellEnvironment.shared.environment
     ) {
         self.command = Command(arguments: [shell.rawValue, "-c", script], currentDirectoryURL: nil, environment: environment)
