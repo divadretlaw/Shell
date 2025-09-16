@@ -9,7 +9,7 @@ import Foundation
 import SwiftSystem
 
 /// An unsafe script to run with a shell
-public final class UnsafeScript: ExpressibleByStringLiteral {
+public struct UnsafeScript: Sendable, ExpressibleByStringLiteral {
     private let script: String
     private let shell: Shell?
 
@@ -19,7 +19,7 @@ public final class UnsafeScript: ExpressibleByStringLiteral {
     /// - Parameters:
     ///   - shell: The ``Shell/Shell`` to use. Defaults to `nil`.
     ///   - script: Callback to create a script to execute.
-    public convenience init(shell: Shell? = nil, script: () -> String) {
+    public init(shell: Shell? = nil, script: () -> String) {
         self.init(script(), shell: shell)
     }
 
@@ -34,7 +34,7 @@ public final class UnsafeScript: ExpressibleByStringLiteral {
 
     // MARK: - ExpressibleByStringLiteral
 
-    public convenience init(stringLiteral value: String) {
+    public init(stringLiteral value: String) {
         self.init(value)
     }
 
@@ -56,7 +56,7 @@ public final class UnsafeScript: ExpressibleByStringLiteral {
     }
 
     /// Runs the process and all of its callers
-    public func callAsFunction() async throws {
+    public func callAsFunction() throws {
         let terminationStatus = swiftSystem(command)
         if terminationStatus != 0 {
             throw RunnableError.terminated(terminationStatus, stderr: nil)

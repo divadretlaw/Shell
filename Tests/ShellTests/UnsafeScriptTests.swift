@@ -10,7 +10,7 @@ struct UnsafeScriptTests {
             echo 'World';
             """
         }
-        try await script()
+        try script()
     }
 
     @Test
@@ -20,8 +20,8 @@ struct UnsafeScriptTests {
             exit 1
             """
         }
-        await #expect(throws: RunnableError.self) {
-            try await script()
+        #expect(throws: RunnableError.self) {
+            try script()
         }
     }
 
@@ -39,7 +39,7 @@ struct UnsafeScriptTests {
                 echo 'World';
                 """
             }
-            try await script()
+            try script()
         }
     }
 
@@ -50,6 +50,6 @@ struct UnsafeScriptTests {
             echo 'Hello';
             echo 'World';
             """
-        try await script()
+        try script()
     }
 }
