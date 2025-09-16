@@ -2,8 +2,7 @@ import Testing
 @testable import Shell
 
 struct ScriptTests {
-    @Test
-    func script() async throws {
+    @Test func script() async throws {
         let script = Script {
             """
             echo "Hello";
@@ -14,8 +13,7 @@ struct ScriptTests {
         #expect(output.trimmingCharacters(in: .whitespacesAndNewlines) == "Hello\nWorld")
     }
 
-    @Test
-    func failingScript() async throws {
+    @Test func failingScript() async throws {
         let script = Script {
             """
             exit 1
@@ -26,8 +24,7 @@ struct ScriptTests {
         }
     }
 
-    @Test
-    func shells() async throws {
+    @Test func shells() async throws {
         for shell in Shell.allCases {
             guard await shell.isAvailable else {
                 print("Checking: \(shell) - not available. Skip.")
@@ -45,8 +42,7 @@ struct ScriptTests {
         }
     }
 
-    @Test
-    func expressibleByStringLiteral() async throws {
+    @Test func expressibleByStringLiteral() async throws {
         let script: Script =
             """
             echo "Hello";
@@ -56,8 +52,7 @@ struct ScriptTests {
         #expect(output.trimmingCharacters(in: .whitespacesAndNewlines) == "Hello\nWorld")
     }
 
-    @Test
-    func pipe() async throws {
+    @Test func pipe() async throws {
         let script = Script {
             """
             echo "Hello";
@@ -70,8 +65,7 @@ struct ScriptTests {
         #expect(output.trimmingCharacters(in: .whitespacesAndNewlines) == "olleH\ndlroW")
     }
 
-    @Test
-    func redirect() async throws {
+    @Test func redirect() async throws {
         let script = Script {
             """
             echo "Hello";
@@ -84,8 +78,7 @@ struct ScriptTests {
         #expect(output.trimmingCharacters(in: .whitespacesAndNewlines) == "olleH\ndlroW")
     }
 
-    @Test
-    func multiPipe() async throws {
+    @Test func multiPipe() async throws {
         let script = Script {
             """
             echo "Hello";
@@ -97,8 +90,7 @@ struct ScriptTests {
         #expect(output.trimmingCharacters(in: .whitespacesAndNewlines) == "Hello\nWorld")
     }
 
-    @Test
-    func multiRedirection() async throws {
+    @Test func multiRedirection() async throws {
         let script = Script {
             """
             echo "Hello";
@@ -110,8 +102,7 @@ struct ScriptTests {
         #expect(output.trimmingCharacters(in: .whitespacesAndNewlines) == "Hello\nWorld")
     }
 
-    @Test
-    func piped() async throws {
+    @Test func piped() async throws {
         let script = Script {
             """
             echo "Hello";
@@ -124,8 +115,7 @@ struct ScriptTests {
         #expect(output.trimmingCharacters(in: .whitespacesAndNewlines) == "olleH\ndlroW")
     }
 
-    @Test
-    func scriptProgress() async throws {
+    @Test func scriptProgress() async throws {
         let script = Script {
             """
             echo "Hello";
@@ -141,8 +131,7 @@ struct ScriptTests {
         try await script()
     }
 
-    @Test
-    func write() async throws {
+    @Test func write() async throws {
         try await withTemporaryDirectory { directory in
             let file = directory.appending(path: "test.txt")
             let script = Script {
